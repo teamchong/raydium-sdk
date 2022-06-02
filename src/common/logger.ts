@@ -212,16 +212,7 @@ export class Logger {
       message += " (" + messageDetails.join(", ") + ")";
     }
 
-    // @TODO: Any??
-    const error: any = new Error(message);
-    error.reason = reason;
-    error.code = code;
-
-    Object.entries(params).forEach(([key, value]) => {
-      error[key] = value;
-    });
-
-    return error;
+    return Object.assign(new Error(message), { reason, code }, params);
   }
 
   throwError(message: string, code?: ErrorCode, params?: any): never {
