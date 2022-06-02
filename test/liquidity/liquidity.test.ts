@@ -61,17 +61,17 @@ describe("Test Liquidity.", () => {
     const { quoteMint, lpMint } = poolKeys;
     const { quoteDecimals } = poolInfo;
 
-    const currencyAmount = new CurrencyAmount(Currency.SOL, 10);
+    const amount = new CurrencyAmount(Currency.SOL, 10);
     const anotherCurrency = new Token(quoteMint, quoteDecimals);
 
-    const { maxAnotherCurrencyAmount } = Liquidity.computeAnotherCurrencyAmount({
+    const { maxAnotherAmount } = Liquidity.computeAnotherAmount({
       poolKeys,
       poolInfo,
-      currencyAmount,
+      amount,
       anotherCurrency,
       slippage: new Percent(0),
     });
-    console.log(maxAnotherCurrencyAmount.toExact());
+    console.log(maxAnotherAmount.toExact());
 
     const { transaction, signers } = await Liquidity.makeAddLiquidityTransaction({
       connection,
@@ -81,8 +81,8 @@ describe("Test Liquidity.", () => {
         lpTokenAccount: await Spl.getAssociatedTokenAccount({ mint: lpMint, owner: wallet.publicKey }),
         owner: wallet.publicKey,
       },
-      currencyAmountInA: currencyAmount,
-      currencyAmountInB: maxAnotherCurrencyAmount,
+      currencyAmountInA: amount,
+      currencyAmountInB: maxAnotherAmount,
       fixedSide: "a",
     });
 
@@ -95,17 +95,17 @@ describe("Test Liquidity.", () => {
     const { quoteMint, lpMint } = poolKeys;
     const { quoteDecimals } = poolInfo;
 
-    const currencyAmount = new TokenAmount(new Token(quoteMint, quoteDecimals), 10);
+    const amount = new TokenAmount(new Token(quoteMint, quoteDecimals), 10);
     const anotherCurrency = Currency.SOL;
 
-    const { maxAnotherCurrencyAmount } = Liquidity.computeAnotherCurrencyAmount({
+    const { maxAnotherAmount } = Liquidity.computeAnotherAmount({
       poolKeys,
       poolInfo,
-      currencyAmount,
+      amount,
       anotherCurrency,
       slippage: new Percent(0),
     });
-    console.log(maxAnotherCurrencyAmount.toExact());
+    console.log(maxAnotherAmount.toExact());
 
     const { transaction, signers } = await Liquidity.makeAddLiquidityTransaction({
       connection,
@@ -115,8 +115,8 @@ describe("Test Liquidity.", () => {
         lpTokenAccount: await Spl.getAssociatedTokenAccount({ mint: lpMint, owner: wallet.publicKey }),
         owner: wallet.publicKey,
       },
-      currencyAmountInA: currencyAmount,
-      currencyAmountInB: maxAnotherCurrencyAmount,
+      currencyAmountInA: amount,
+      currencyAmountInB: maxAnotherAmount,
       fixedSide: "a",
     });
 
