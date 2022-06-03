@@ -2,10 +2,10 @@ import { Connection, Keypair } from "@solana/web3.js";
 import consola from "consola";
 import dotenv from "dotenv";
 
-import { jsonInfo2PoolKeys } from "../../src/common";
+import { jsonInfo2PoolKeys, TOKEN_PROGRAM_ID } from "../../src/common";
 import { Currency, CurrencyAmount, Percent, Token, TokenAmount } from "../../src/entity";
 import { Liquidity, LiquidityPoolInfo } from "../../src/liquidity";
-import { Spl } from "../../src/spl";
+import { SPL_ACCOUNT_LAYOUT } from "../../src/spl";
 
 dotenv.config();
 
@@ -77,12 +77,15 @@ describe("Test Liquidity.", () => {
       connection,
       poolKeys,
       userKeys: {
-        tokenAccountB: await Spl.getAssociatedTokenAccount({ mint: quoteMint, owner: wallet.publicKey }),
-        lpTokenAccount: await Spl.getAssociatedTokenAccount({ mint: lpMint, owner: wallet.publicKey }),
+        tokenAccounts: (
+          await connection.getTokenAccountsByOwner(wallet.publicKey, { programId: TOKEN_PROGRAM_ID })
+        ).value
+          .filter((v) => v.pubkey === quoteMint || v.pubkey === lpMint)
+          .map((acc) => ({ pubkey: acc.pubkey, accountInfo: SPL_ACCOUNT_LAYOUT.decode(acc.account.data) })),
         owner: wallet.publicKey,
       },
-      currencyAmountInA: amount,
-      currencyAmountInB: maxAnotherAmount,
+      amountInA: amount,
+      amountInB: maxAnotherAmount,
       fixedSide: "a",
     });
 
@@ -111,12 +114,15 @@ describe("Test Liquidity.", () => {
       connection,
       poolKeys,
       userKeys: {
-        tokenAccountA: await Spl.getAssociatedTokenAccount({ mint: quoteMint, owner: wallet.publicKey }),
-        lpTokenAccount: await Spl.getAssociatedTokenAccount({ mint: lpMint, owner: wallet.publicKey }),
+        tokenAccounts: (
+          await connection.getTokenAccountsByOwner(wallet.publicKey, { programId: TOKEN_PROGRAM_ID })
+        ).value
+          .filter((v) => v.pubkey === quoteMint || v.pubkey === lpMint)
+          .map((acc) => ({ pubkey: acc.pubkey, accountInfo: SPL_ACCOUNT_LAYOUT.decode(acc.account.data) })),
         owner: wallet.publicKey,
       },
-      currencyAmountInA: amount,
-      currencyAmountInB: maxAnotherAmount,
+      amountInA: amount,
+      amountInB: maxAnotherAmount,
       fixedSide: "a",
     });
 
@@ -135,11 +141,14 @@ describe("Test Liquidity.", () => {
       connection,
       poolKeys,
       userKeys: {
-        lpTokenAccount: await Spl.getAssociatedTokenAccount({ mint: lpMint, owner: wallet.publicKey }),
-        quoteTokenAccount: await Spl.getAssociatedTokenAccount({ mint: quoteMint, owner: wallet.publicKey }),
+        tokenAccounts: (
+          await connection.getTokenAccountsByOwner(wallet.publicKey, { programId: TOKEN_PROGRAM_ID })
+        ).value
+          .filter((v) => v.pubkey === quoteMint || v.pubkey === lpMint)
+          .map((acc) => ({ pubkey: acc.pubkey, accountInfo: SPL_ACCOUNT_LAYOUT.decode(acc.account.data) })),
         owner: wallet.publicKey,
       },
-      tokenAmountIn: amount,
+      amountIn: amount,
     });
 
     const txid = await connection.sendTransaction(transaction, [wallet, ...signers]);
